@@ -1,6 +1,7 @@
 <script>
   import Header from './components/Header.svelte'
   import ColorMode from './components/ColorMode.svelte'
+  import FilePopup from './components/FilePopup.svelte'
 
   import { theme, aliases } from './store'
 
@@ -49,6 +50,9 @@
       {/each}
     </tbody>
   </table>
+
+  <!-- FILE POPUP -->
+  <FilePopup />
 
   <!-- COLOR MODE CHANGE -->
   <ColorMode />
