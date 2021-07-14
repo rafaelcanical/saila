@@ -1,75 +1,247 @@
 <script>
-  export let changeColorMode
-  export let mode
+  import { theme } from '../store'
+
+  /**
+   * Change color mode
+   */
+  const changeColorMode = () => {
+    if ($theme === 'light') {
+      theme.set('dark')
+    } else {
+      theme.set('light')
+    }
+  }
 </script>
 
-<div class="color-mode {mode}" on:click={changeColorMode}>
+<div class="color-mode" style="width: 32px; height: 32px;" on:click={changeColorMode}>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="sun"
-    ><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line
-      x1="4.22"
-      y1="4.22"
-      x2="5.64"
-      y2="5.64"
-    /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line
-      x1="21"
-      y1="12"
-      x2="23"
-      y2="12"
-    /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg
+    viewBox="0 0 16 16"
+    width="16"
+    height="16"
+    preserveAspectRatio="xMidYMid meet"
+    class="dark-part"
+    style="vertical-align: middle;"
   >
+    <g>
+      <path
+        d="M8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2Z"
+      />
+    </g>
+  </svg>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    stroke-width="2"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    class="moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg
+    viewBox="0 0 16 16"
+    width="16"
+    height="16"
+    preserveAspectRatio="xMidYMid meet"
+    class="light-part"
+    style="vertical-align: middle;"
   >
+    <g>
+      <path
+        d="M8 2C11.3137 2 14 4.68629 14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2Z"
+      />
+    </g>
+  </svg>
 </div>
 
 <style>
   .color-mode {
+    background-color: var(--n0);
+    display: inline-flex;
+    outline: 0;
+    transition: all 0.13s ease-in-out;
+    transition: var(--transition);
     cursor: pointer;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: 1px solid var(--n150);
+    border-radius: 7px;
     position: fixed;
     bottom: 15px;
     right: 15px;
     height: 20px;
     width: 20px;
-    background-color: var(--n0);
-    border: 1px solid var(--n100);
-    border-radius: 7px;
-    padding: 7px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
   }
 
-  .color-mode:hover {
-    background-color: var(--n50);
+  .dark-part {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    z-index: 1;
+    -webkit-animation: dark-part-animation-out 0.4s linear;
+    animation: dark-part-animation-out 0.4s linear;
+    fill: var(--n600);
   }
 
-  .color-mode.light svg.sun,
-  .color-mode.dark svg.moon {
-    display: none;
+  .color-mode:hover .dark-part {
+    -webkit-animation: dark-part-animation-in 0.4s linear;
+    animation: dark-part-animation-in 0.4s linear;
+    transform: translate(-4px, -4px);
+    z-index: 2;
   }
 
-  .color-mode svg {
-    width: 18px;
-    height: 18px;
-    stroke: var(--n600);
+  .light-part {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    z-index: 2;
+    -webkit-animation: light-part-animation-out 0.4s linear;
+    animation: light-part-animation-out 0.4s linear;
+    fill: var(--n400);
+  }
+
+  .color-mode:hover .light-part {
+    -webkit-animation: light-part-animation-in 0.4s linear;
+    animation: light-part-animation-in 0.4s linear;
+    transform: translate(4px, 4px);
+    z-index: 1;
+  }
+
+  @-webkit-keyframes light-part-animation-in {
+    0% {
+      transform: translate(0);
+      z-index: 2;
+    }
+    60% {
+      transform: translate(8px, 8px);
+      z-index: 2;
+    }
+    80% {
+      z-index: 1;
+    }
+    to {
+      transform: translate(4px, 4px);
+      z-index: 1;
+    }
+  }
+
+  @keyframes light-part-animation-in {
+    0% {
+      transform: translate(0);
+      z-index: 2;
+    }
+    60% {
+      transform: translate(8px, 8px);
+      z-index: 2;
+    }
+    80% {
+      z-index: 1;
+    }
+    to {
+      transform: translate(4px, 4px);
+      z-index: 1;
+    }
+  }
+
+  @-webkit-keyframes light-part-animation-out {
+    0% {
+      transform: translate(4px, 4px);
+      z-index: 1;
+    }
+    60% {
+      transform: translate(8px, 8px);
+      z-index: 1;
+    }
+    80% {
+      z-index: 2;
+    }
+    to {
+      transform: translate(0);
+      z-index: 2;
+    }
+  }
+
+  @keyframes light-part-animation-out {
+    0% {
+      transform: translate(4px, 4px);
+      z-index: 1;
+    }
+    60% {
+      transform: translate(8px, 8px);
+      z-index: 1;
+    }
+    80% {
+      z-index: 2;
+    }
+    to {
+      transform: translate(0);
+      z-index: 2;
+    }
+  }
+
+  @-webkit-keyframes dark-part-animation-in {
+    0% {
+      transform: translate(0);
+      z-index: 1;
+    }
+    60% {
+      transform: translate(-8px, -8px);
+      z-index: 1;
+    }
+    80% {
+      z-index: 2;
+    }
+    to {
+      transform: translate(-4px, -4px);
+      z-index: 2;
+    }
+  }
+
+  @keyframes dark-part-animation-in {
+    0% {
+      transform: translate(0);
+      z-index: 1;
+    }
+    60% {
+      transform: translate(-8px, -8px);
+      z-index: 1;
+    }
+    80% {
+      z-index: 2;
+    }
+    to {
+      transform: translate(-4px, -4px);
+      z-index: 2;
+    }
+  }
+
+  @-webkit-keyframes dark-part-animation-out {
+    0% {
+      transform: translate(-4px, -4px);
+      z-index: 2;
+    }
+    60% {
+      transform: translate(-8px, -8px);
+      z-index: 2;
+    }
+    80% {
+      z-index: 1;
+    }
+    to {
+      transform: translate(0);
+      z-index: 1;
+    }
+  }
+
+  @keyframes dark-part-animation-out {
+    0% {
+      transform: translate(-4px, -4px);
+      z-index: 2;
+    }
+    60% {
+      transform: translate(-8px, -8px);
+      z-index: 2;
+    }
+    80% {
+      z-index: 1;
+    }
+    to {
+      transform: translate(0);
+      z-index: 1;
+    }
   }
 </style>

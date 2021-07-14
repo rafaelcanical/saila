@@ -48,8 +48,3 @@ body {
   -webkit-font-smoothing: antialiased !important;
   font-weight: 400;
 }
-
-main {
-  background-color: var(--n0);
-  min-height: 100vh;
-}

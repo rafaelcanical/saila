@@ -2,13 +2,13 @@
   export let version
 </script>
 
-<header>
+<header style="-webkit-app-region: drag">
   <div class="app-title-version">Saila {version}</div>
 </header>
 
 <style>
   header {
-    height: 38px;
+    height: 36px;
     background-color: var(--n100);
     border-bottom: 1px solid var(--n150);
     display: flex;

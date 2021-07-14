@@ -7,7 +7,7 @@ app.on('ready', () => {
     height: 720,
     backgroundColor: '#fff',
     titleBarStyle: 'hidden',
-    trafficLightPosition: { x: 13, y: 13 },
+    trafficLightPosition: { x: 13, y: 10 },
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
