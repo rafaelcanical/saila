@@ -17,6 +17,8 @@
   --n800: #262626;
   --n900: #171717;
   --font: Inter, Helvetica, Arial, sans-serif !important;
+  --hover: #edf2f7;
+  --changed: #FEF2D3;
 }
 
 main.dark-mode {
@@ -32,6 +34,8 @@ main.dark-mode {
   --n700: #F5F5F5;
   --n800: #FAFAFA;
   --n900: #FFFFFF;
+  --hover: #343e48;
+  --changed: #FEF2D3;
 }
 
 html, body {
@@ -47,4 +51,42 @@ body {
   text-rendering: optimizeLegibility !important;
   -webkit-font-smoothing: antialiased !important;
   font-weight: 400;
+}
+
+.btn-default {
+  background-color: var(--n0);
+  border: 1px solid var(--n200);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--n600);
+  border-radius: 4px;
+  padding: 7px 10px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.btn-default:hover {
+  background-color: var(--n50);
+  border-color: var(--n300);
+}
+
+.btn-clean {
+  background-color: var(--n50);
+  border: 1px solid var(--n50);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--n500);
+  border-radius: 4px;
+  padding: 7px 10px;
+  cursor: pointer;
+}
+
+.btn-clean:hover {
+  background-color: var(--n150);
+  border-color: var(--n150);
+  color: var(--n700);
+}
+
+.right-actions {
+  margin-left: auto;
 }

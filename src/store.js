@@ -11,6 +11,17 @@ theme.subscribe((value) => {
 })
 
 /**
+ * Aliases file path
+ */
+const storedPath = localStorage.getItem('path')
+export const path = writable(storedPath === 'null' ? null : storedPath)
+
+path.subscribe((value) => {
+  localStorage.setItem('path', value)
+})
+
+/**
  * Aliases
  */
-export const aliases = writable(window.aliases)
+export const aliases = writable([])
+export const initialAliases = writable([])

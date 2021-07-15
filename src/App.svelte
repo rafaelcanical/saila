@@ -3,7 +3,8 @@
   import ColorMode from './components/ColorMode.svelte'
   import FilePopup from './components/FilePopup.svelte'
 
-  import { theme, aliases } from './store'
+  import cloneDeep from 'lodash/cloneDeep'
+  import { theme, path, aliases, initialAliases } from './store'
 
   export let version
 
@@ -19,40 +20,117 @@
       }
     ]
   }
+
+  /**
+   * Load aliases from stored path
+   */
+  const loadAliases = async () => {
+    const response = await window.ipcRenderer.invoke('load-aliases', $path)
+    $initialAliases = cloneDeep(response)
+    $aliases = cloneDeep(response)
+  }
+
+  if ($path !== null && $path.length) {
+    loadAliases()
+  } else {
+    $initialAliases = cloneDeep($aliases)
+  }
+
+  /**
+   * Discard changes
+   */
+  const discardChanges = async () => {
+    $aliases = cloneDeep($initialAliases)
+  }
+
+  /**
+   * Save changes
+   */
+  const saveChanges = async () => {
+    await window.ipcRenderer.invoke('save-aliases', $path, $aliases)
+    const clonedAliases = cloneDeep($aliases)
+
+    clonedAliases.map((ca) => {
+      if (typeof ca.aliasChanged !== 'undefined') {
+        ca.aliasChanged = false
+      }
+    })
+
+    $aliases = [...clonedAliases]
+    $initialAliases = cloneDeep(clonedAliases)
+  }
+
+  /**
+   * If alias changed
+   * @param index
+   * @param key
+   */
+  const checkIfChanged = (index, key) => {
+    if (typeof $initialAliases[index] === 'undefined' || $initialAliases[index][key] !== $aliases[index][key]) {
+      $aliases[index][`${key}Changed`] = true
+    } else {
+      $aliases[index][`${key}Changed`] = false
+    }
+  }
+
+  /**
+   * Total changes
+   */
+  const getTotalChanges = (aa) => {
+    return aa.filter((a) => a.aliasChanged).length + aa.filter((a) => a.commandChanged).length
+  }
+
+  $: totalChanges = getTotalChanges($aliases)
 </script>
 
 <main class={`${$theme}-mode`}>
-  <div class="header-actions">
-    <Header {version} />
+  {#if $path !== null && $path.length}
+    <div class="header-actions">
+      <Header {version} />
 
-    <div class="actions">
-      <button class="btn-default" on:click={addEmptyAlias}>Add alias</button>
-      <div class="right-actions">
-        <button class="btn-clean">Discard changes</button>
-        <button class="btn-default">Save changes</button>
+      <div class="actions">
+        <button class="btn-default" on:click={addEmptyAlias}>Add alias</button>
+        {#if totalChanges}
+          <div class="right-actions">
+            <button class="btn-clean" on:click={discardChanges}>Discard changes</button>
+            <button class="btn-default" on:click={saveChanges}>Save {totalChanges} changes</button>
+          </div>
+        {/if}
       </div>
     </div>
-  </div>
 
-  <table>
-    <thead>
-      <th align="left" width="20px" />
-      <th align="left" width="200px">Alias</th>
-      <th align="left">Command</th>
-    </thead>
-    <tbody>
-      {#each $aliases as alias, index}
-        <tr>
-          <td align="center">{index + 1}</td>
-          <td><input type="text" spellcheck="false" value={alias.alias} /></td>
-          <td><input type="text" spellcheck="false" value={alias.command} class="command" /></td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+    <ul class="table-header">
+      <li style="width:40px" />
+      <li style="width:200px">Alias</li>
+      <li style="flex:1">Command</li>
+    </ul>
 
-  <!-- FILE POPUP -->
-  <FilePopup />
+    {#each $aliases as alias, index}
+      <ul class="table-content">
+        <li style="width:40px">{index + 1}</li>
+        <li style="width:200px" class:changed={alias.aliasChanged}>
+          <input
+            type="text"
+            spellcheck="false"
+            bind:value={alias.alias}
+            on:change={() => checkIfChanged(index, 'alias')}
+          />
+        </li>
+        <li style="flex:1" class:changed={alias.commandChanged}>
+          <input
+            type="text"
+            spellcheck="false"
+            bind:value={alias.command}
+            on:change={() => checkIfChanged(index, 'command')}
+            class="command"
+          />
+        </li>
+      </ul>
+    {/each}
+  {:else}
+    <!-- FILE POPUP -->
+    <FilePopup />
+  {/if}
 
   <!-- COLOR MODE CHANGE -->
   <ColorMode />
@@ -82,50 +160,20 @@
     padding: 0 9px;
   }
 
-  .btn-default {
-    background-color: var(--n0);
-    border: 1px solid var(--n200);
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--n600);
-    border-radius: 4px;
-    padding: 7px 10px;
-    cursor: pointer;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  .table-header,
+  .table-content {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
-  .btn-default:hover {
-    background-color: var(--n50);
-    border-color: var(--n300);
+  .table-content:hover {
+    background-color: var(--hover);
   }
 
-  .btn-clean {
-    background-color: var(--n50);
-    border: 1px solid var(--n50);
-    font-weight: 600;
-    font-size: 12px;
-    color: var(--n500);
-    border-radius: 4px;
-    padding: 7px 10px;
-    cursor: pointer;
-  }
-
-  .btn-clean:hover {
-    background-color: var(--n150);
-    border-color: var(--n150);
-    color: var(--n700);
-  }
-
-  .right-actions {
-    margin-left: auto;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  table th {
+  .table-header li {
     color: var(--n800);
     font-size: 14px;
     font-weight: 600;
@@ -133,46 +181,52 @@
     border-left: 1px solid var(--n150);
     line-height: 34px;
     padding: 0 10px;
+    height: 34px;
+    box-sizing: border-box;
   }
 
-  table th:first-child {
-    border-left: 0;
-  }
-
-  table td {
+  .table-content li {
     border-bottom: 1px solid var(--n150);
     border-left: 1px solid var(--n150);
     color: var(--n500);
     font-size: 14px;
     font-weight: 400;
+    height: 34px;
+    box-sizing: border-box;
   }
 
-  table td input {
+  .table-content li.changed {
+    background-color: var(--changed);
+  }
+
+  .table-content input {
     color: var(--n500);
     font-size: 14px;
     font-weight: 400;
     font-family: var(--font);
-    width: calc(100% + 2px);
+    width: 100%;
     box-sizing: border-box;
     border: 2px solid transparent;
-    line-height: 34px;
+    height: 34px;
     padding: 0 10px;
     outline: 0;
     box-shadow: none;
     border-radius: 4px;
-    margin: -1px;
     background-color: transparent;
   }
 
-  table td input:focus {
+  .table-content input:focus {
     border-color: #3649e2;
   }
 
-  table td input.command {
+  .table-content input.command {
     font-family: monospace;
   }
 
-  table td:first-child {
+  .table-content li:first-child {
     border-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 </style>
