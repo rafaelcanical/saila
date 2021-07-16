@@ -26,8 +26,14 @@
    */
   const loadAliases = async () => {
     const response = await window.ipcRenderer.invoke('load-aliases', $path)
-    $initialAliases = cloneDeep(response)
-    $aliases = cloneDeep(response)
+
+    // We assume that file doesn't exist in this case
+    if (typeof response.error !== 'undefined') {
+      path.set(null)
+    } else {
+      $initialAliases = cloneDeep(response)
+      $aliases = cloneDeep(response)
+    }
   }
 
   if ($path !== null && $path.length) {
@@ -53,6 +59,9 @@
     clonedAliases.map((ca) => {
       if (typeof ca.aliasChanged !== 'undefined') {
         ca.aliasChanged = false
+      }
+      if (typeof ca.commandChanged !== 'undefined') {
+        ca.commandChanged = false
       }
     })
 

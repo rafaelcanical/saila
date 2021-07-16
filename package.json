@@ -1,17 +1,23 @@
 {
   "name": "saila",
+  "description": "Visual interface to manage terminal alias.",
   "version": "0.0.1",
   "private": true,
   "main": "main.js",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "electron ."
+    "start": "electron .",
+    "build-mac": "electron-packager . Saila --platform darwin --arch x64 --icon=./icon.icns --out dist/",
+    "build-linux": "electron-packager . Saila --platform linux --arch x64 --out dist/",
+    "build-deb": "npm run build-linux && electron-installer-debian --src dist/Saila-linux-x64/ --arch amd64 --config deb.json"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
     "@rollup/plugin-node-resolve": "^11.0.0",
     "electron": "^13.1.6",
+    "electron-installer-debian": "^3.1.0",
+    "electron-packager": "^15.2.0",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-livereload": "^2.0.0",
@@ -20,6 +26,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "electron-is-dev": "^2.0.0",
     "lodash.clonedeep": "^4.5.0",
     "sirv-cli": "^1.0.0"
   },

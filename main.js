@@ -1,10 +1,11 @@
 const { app, ipcMain, BrowserWindow } = require('electron')
 const fs = require('fs')
 const path = require('path')
+const isDev = require('electron-is-dev')
 
 app.on('ready', () => {
   const mainWindow = new BrowserWindow({
-    width: 1024 + 550,
+    width: 1024 + (isDev ? 550 : 0),
     height: 720,
     backgroundColor: '#fff',
     titleBarStyle: 'hidden',
@@ -15,7 +16,9 @@ app.on('ready', () => {
   })
 
   mainWindow.loadFile(path.join(__dirname, 'public/index.html'))
-  mainWindow.webContents.openDevTools()
+  if (isDev) {
+    mainWindow.webContents.openDevTools()
+  }
 
   /**
    * Invoke from frontend
@@ -42,25 +45,29 @@ const loadAliases = (filePath) => {
 
     // Get content between those lines
     let splittedAlias = data.split('# saila-app-alias start')
-    splittedAlias = splittedAlias[1].split('# saila-app-alias end')
+    if (typeof splittedAlias[1] !== 'undefined') {
+      splittedAlias = splittedAlias[1].split('# saila-app-alias end')
 
-    // Destructure aliases and explode it to array
-    const aliasesString = splittedAlias[0]
-      .split('\n')
-      .filter((a) => a.length)
-      .slice()
+      // Destructure aliases and explode it to array
+      const aliasesString = splittedAlias[0]
+        .split('\n')
+        .filter((a) => a.length)
+        .slice()
 
-    // Transform alias to structured array of objects
-    aliasesString.map((a) => {
-      const alias = a.split('alias ')[1].split('=')[0]
-      const command = a.split('=')[1].substring(1).slice(0, -1)
-      aliases.push({
-        alias,
-        command
+      // Transform alias to structured array of objects
+      aliasesString.map((a) => {
+        const alias = a.split('alias ')[1].split('=')[0]
+        const command = a.split('=')[1].substring(1).slice(0, -1)
+        aliases.push({
+          alias,
+          command
+        })
       })
-    })
 
-    return aliases
+      return aliases
+    }
+
+    return []
   } catch (err) {
     return { error: true }
   }
@@ -74,19 +81,27 @@ const saveAliases = (filePath, aliases) => {
     const data = fs.readFileSync(filePath, 'utf-8')
 
     // Get content between those lines
-    let firstPart = data.split('# saila-app-alias start')
-    secondPart = firstPart[1].split('# saila-app-alias end')
+    let splittedFileContent = data.split(`# saila-app-alias start`)
 
-    let newAliases = firstPart[0]
-    newAliases += `
-# saila-app-alias start
-`
+    // Check if there is alias in the file and prepare content
+    let lastPart = ''
+    let firstPart = ''
+    if (typeof splittedFileContent[1] !== 'undefined') {
+      secondPart = splittedFileContent[1].split(`# saila-app-alias end\n`)
+      firstPart = splittedFileContent[0]
+      lastPart = secondPart[1]
+    } else {
+      firstPart = `${splittedFileContent[0]}\n`
+      lastPart = ''
+    }
+
+    // Structure correct alias contents
+    let newAliases = firstPart
+    newAliases += `# saila-app-alias start\n`
     aliases.map((a, index) => {
-      newAliases += `alias ${a.alias}="${a.command}"
-`
+      newAliases += `alias ${a.alias}="${a.command}"\n`
       if (index + 1 == aliases.length) {
-        newAliases += `# saila-app-alias end
-${secondPart[1]}`
+        newAliases += `# saila-app-alias end\n${lastPart}`
       }
     })
 
