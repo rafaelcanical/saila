@@ -1,7 +1,13 @@
 {
   "dest": "dist/installers/",
   "icon": "icon.png",
-  "categories": [
-    "Utility"
-  ]
+  "categories": ["Utility"],
+  "options": {
+    "name": "Saila",
+    "productName": "Saila",
+    "genericName": "Saila",
+    "description": "Visual interface to manage terminal alias.",
+    "productDescription": "Visual interface to manage terminal alias.",
+    "version": "0.0.1"
+  }
 }

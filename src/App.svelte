@@ -53,20 +53,25 @@
    * Save changes
    */
   const saveChanges = async () => {
-    await window.ipcRenderer.invoke('save-aliases', $path, $aliases)
-    const clonedAliases = cloneDeep($aliases)
+    const response = await window.ipcRenderer.invoke('save-aliases', $path, $aliases)
 
-    clonedAliases.map((ca) => {
-      if (typeof ca.aliasChanged !== 'undefined') {
-        ca.aliasChanged = false
-      }
-      if (typeof ca.commandChanged !== 'undefined') {
-        ca.commandChanged = false
-      }
-    })
+    if (typeof response.error !== 'undefined') {
+      alert(response.error.message)
+    } else {
+      const clonedAliases = cloneDeep($aliases)
 
-    $aliases = [...clonedAliases]
-    $initialAliases = cloneDeep(clonedAliases)
+      clonedAliases.map((ca) => {
+        if (typeof ca.aliasChanged !== 'undefined') {
+          ca.aliasChanged = false
+        }
+        if (typeof ca.commandChanged !== 'undefined') {
+          ca.commandChanged = false
+        }
+      })
+
+      $aliases = [...clonedAliases]
+      $initialAliases = cloneDeep(clonedAliases)
+    }
   }
 
   /**

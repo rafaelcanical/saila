@@ -9,11 +9,14 @@ app.on('ready', () => {
     height: 720,
     backgroundColor: '#fff',
     titleBarStyle: 'hidden',
+    autoHideMenuBar: true,
     trafficLightPosition: { x: 13, y: 10 },
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
+  mainWindow.removeMenu()
 
   mainWindow.loadFile(path.join(__dirname, 'public/index.html'))
   if (isDev) {
@@ -29,8 +32,8 @@ app.on('ready', () => {
   })
 
   ipcMain.handle('save-aliases', (e, filePath, aliases) => {
-    saveAliases(filePath, aliases)
-    return true
+    const err = saveAliases(filePath, aliases)
+    return err
   })
 })
 
@@ -105,8 +108,8 @@ const saveAliases = (filePath, aliases) => {
       }
     })
 
-    fs.writeFileSync(filePath, newAliases)
+    fs.writeFileSync(filePath, newAliases, { mode: 0o777 })
   } catch (err) {
-    return { error: true }
+    return { error: err }
   }
 }

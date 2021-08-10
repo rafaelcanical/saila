@@ -9,8 +9,8 @@
     "dev": "rollup -c -w",
     "start": "electron .",
     "build-mac": "electron-packager . Saila --platform darwin --arch x64 --icon=./icon.icns --out dist/",
-    "build-linux": "electron-packager . Saila --platform linux --arch x64 --out dist/",
-    "build-deb": "npm run build-linux && electron-installer-debian --src dist/Saila-linux-x64/ --arch amd64 --config deb.json"
+    "build-linux": "electron-packager . saila --platform linux --arch x64 --out dist/",
+    "build-deb": "npm run build-linux && electron-installer-debian --src dist/saila-linux-x64/ --arch amd64 --config deb.json"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",
